@@ -145,8 +145,9 @@ services:
     ports:
       - "${FRONTEND_PORT}:5173"
     environment:
-      # consumed by vite.config.ts as the dev proxy target (/app-api -> backend)
+      # consumed by vite.config.ts as the dev proxy targets (/app-api, /app-socket -> backend)
       API_URL: ${API_URL}
+      SOCKET_URL: ${SOCKET_URL}
       VITE_API_URL: ${VITE_API_URL}
       VITE_SOCKET_URL: ${VITE_SOCKET_URL}
     networks:

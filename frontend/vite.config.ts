@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const backendUrl = env.API_URL || 'http://backend:3000'
-  const socketUrl = env.SOCKET_URL || env.API_URL?.replace('/app-api', '') + '/ws' || 'http://backend:3000'
+  const socketUrl = env.SOCKET_URL || backendUrl
 
   return {
     plugins: [react()],

@@ -55,3 +55,27 @@ export function readAccessToken(req: Request): string | undefined {
 export function readRefreshToken(req: Request): string | undefined {
   return req.cookies?.[REFRESH_TOKEN_COOKIE] as string | undefined;
 }
+
+/**
+ * Reads the access token from a raw Cookie header. Used outside of the
+ * Express request pipeline, e.g. when authenticating a WebSocket handshake.
+ */
+export function readAccessTokenFromCookieHeader(
+  header: string | undefined,
+): string | undefined {
+  if (!header) {
+    return undefined;
+  }
+
+  for (const pair of header.split(';')) {
+    const separator = pair.indexOf('=');
+    if (separator === -1) continue;
+
+    const name = pair.slice(0, separator).trim();
+    if (name !== ACCESS_TOKEN_COOKIE) continue;
+
+    return decodeURIComponent(pair.slice(separator + 1).trim());
+  }
+
+  return undefined;
+}

@@ -11,8 +11,10 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useAuth } from '@/hooks/useAuth'
 import { useGame } from '@/hooks/useGame'
+import { useGameSocket } from '@/hooks/useGameSocket'
 import { useMakeMove } from '@/hooks/useMakeMove'
 import { playerColorForUser } from '@/lib/chess'
+import { isTerminalStatus } from '@/types/game'
 import type { MovePayload } from '@/types/game'
 import styles from './GamePage.module.scss'
 
@@ -32,6 +34,10 @@ export const GamePage = () => {
     },
     [id, makeMove, resetError, setGame],
   )
+
+  // wake up and refetch whenever the opponent moves
+  const handleRemoteUpdate = useCallback(() => reload(), [reload])
+  useGameSocket(game?.id, game !== null && !isTerminalStatus(game.status), handleRemoteUpdate)
 
   if (!id || notFound) {
     return (

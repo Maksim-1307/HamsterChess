@@ -12,6 +12,7 @@ import {
 import { Game } from './domain/game.entity';
 import { CreateMoveDto } from './dto/create-move.dto';
 import { CreateGameDto } from './dto/create-game.dto';
+import { GameGateway } from './game.gateway';
 import {
   GAME_REPOSITORY,
   GameRecord,
@@ -23,6 +24,8 @@ export class GameService {
   constructor(
     @Inject(GAME_REPOSITORY)
     private readonly gameRepository: GameRepository,
+    @Inject(GameGateway)
+    private readonly gameGateway: GameGateway,
   ) {}
 
   async createGame(dto: CreateGameDto, userId: string): Promise<GameState> {
@@ -61,6 +64,7 @@ export class GameService {
 
     game.makeMove(dto);
     await this.gameRepository.save(game.toRecord());
+    this.gameGateway.notifyMove(id, userId);
     return game.toState();
   }
 

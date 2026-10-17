@@ -24,6 +24,6 @@ import { UserPersistenceModule } from './persistence/user-persistence.module';
     AuthService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
