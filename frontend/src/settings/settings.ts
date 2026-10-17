@@ -1,21 +1,27 @@
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from '@/i18n/translations'
+import { DEFAULT_BOARD_THEME, isBoardTheme } from './board-themes'
 
 export interface AppSettings {
   language: string
+  boardTheme: string
 }
 
-export const DEFAULT_SETTINGS: AppSettings = { language: DEFAULT_LANGUAGE }
+export const DEFAULT_SETTINGS: AppSettings = {
+  language: DEFAULT_LANGUAGE,
+  boardTheme: DEFAULT_BOARD_THEME,
+}
 
 const STORAGE_KEY = 'hamster-chess:settings'
 
 const normalize = (value: unknown): AppSettings => {
   if (!value || typeof value !== 'object') return DEFAULT_SETTINGS
-  const language = (value as { language?: unknown }).language
+  const { language, boardTheme } = value as { language?: unknown; boardTheme?: unknown }
   return {
     language:
       typeof language === 'string' && isSupportedLanguage(language)
         ? language
         : DEFAULT_SETTINGS.language,
+    boardTheme: isBoardTheme(boardTheme) ? boardTheme : DEFAULT_SETTINGS.boardTheme,
   }
 }
 

@@ -3,7 +3,7 @@ import type { AppSettings } from './settings'
 
 export interface SettingsContextValue {
   settings: AppSettings
-  setLanguage: (language: string) => void
+  updateSettings: (patch: Partial<AppSettings>) => void
 }
 
 export const SettingsContext = createContext<SettingsContextValue | null>(null)

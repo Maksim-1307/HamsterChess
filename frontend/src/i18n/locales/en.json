@@ -105,6 +105,13 @@
     "subtitle": "Manage your preferences.",
     "languageCardTitle": "Language",
     "languageCardSubtitle": "Choose the language of the interface.",
-    "languageLabel": "Interface language"
+    "languageLabel": "Interface language",
+    "boardThemeCardTitle": "Board theme",
+    "boardThemeCardSubtitle": "Choose the colors of the chessboard.",
+    "boardThemeLabel": "Board colors",
+    "boardThemes": {
+      "classic": "Classic",
+      "pickme": "Pickme"
+    }
   }
 }

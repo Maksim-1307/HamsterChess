@@ -105,6 +105,13 @@
     "subtitle": "Управляйте своими предпочтениями.",
     "languageCardTitle": "Язык",
     "languageCardSubtitle": "Выберите язык интерфейса.",
-    "languageLabel": "Язык интерфейса"
+    "languageLabel": "Язык интерфейса",
+    "boardThemeCardTitle": "Тема доски",
+    "boardThemeCardSubtitle": "Выберите цвета шахматной доски.",
+    "boardThemeLabel": "Цвета доски",
+    "boardThemes": {
+      "classic": "Классическая",
+      "pickme": "Пикми"
+    }
   }
 }

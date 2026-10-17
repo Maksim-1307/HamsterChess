@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import { applyBoardTheme } from './board-themes'
 import { loadSettings, persistSettings } from './settings'
 import type { AppSettings } from './settings'
 import { SettingsContext } from './settings-context'
@@ -11,17 +12,20 @@ export interface SettingsProviderProps {
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<AppSettings>(loadSettings)
 
+  // Apply the board colors before paint so the theme does not flash on load.
+  useLayoutEffect(() => {
+    applyBoardTheme(settings.boardTheme)
+  }, [settings.boardTheme])
+
   useEffect(() => {
     persistSettings(settings)
   }, [settings])
 
-  const setLanguage = useCallback((language: string) => {
-    setSettings((previous) =>
-      previous.language === language ? previous : { ...previous, language },
-    )
+  const updateSettings = useCallback((patch: Partial<AppSettings>) => {
+    setSettings((previous) => ({ ...previous, ...patch }))
   }, [])
 
-  const value = useMemo(() => ({ settings, setLanguage }), [settings, setLanguage])
+  const value = useMemo(() => ({ settings, updateSettings }), [settings, updateSettings])
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
 }
