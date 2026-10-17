@@ -2,6 +2,10 @@ export interface GameRecord {
   id: string;
   /** full move history in SAN notation, replayed to restore the position */
   moves: string[];
+  /** user id occupying the white seat, or null when it is still open */
+  whitePlayerId: string | null;
+  /** user id occupying the black seat, or null when it is still open */
+  blackPlayerId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

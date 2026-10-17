@@ -23,9 +23,9 @@ export const HomePage = () => {
   const { createGame, isCreating, error } = useCreateGame()
 
   const handleCreate = async () => {
-    const game = await createGame()
+    const game = await createGame(color)
     if (game) {
-      navigate(`/game/${game.id}?color=${color}`)
+      navigate(`/game/${game.id}`)
     }
   }
 
@@ -33,7 +33,7 @@ export const HomePage = () => {
     event.preventDefault()
     const id = joinId.trim()
     if (id) {
-      navigate(`/game/${id}?color=${color}`)
+      navigate(`/game/${id}`)
     }
   }
 
@@ -69,12 +69,6 @@ export const HomePage = () => {
               value={joinId}
               placeholder="Paste the game ID"
               onChange={(event) => setJoinId(event.target.value)}
-            />
-            <Select
-              label="Play as"
-              value={color}
-              options={COLOR_OPTIONS}
-              onChange={(event) => setColor(event.target.value as PieceColor)}
             />
             <Button type="submit" variant="secondary" block disabled={joinId.trim().length === 0}>
               Join game

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { ChessBoardView } from '@/components/game/ChessBoardView'
 import { GameStatusPanel } from '@/components/game/GameStatusPanel'
 import { GameToolbar } from '@/components/game/GameToolbar'
@@ -9,18 +9,18 @@ import { PageState } from '@/components/layout/PageState'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { useAuth } from '@/hooks/useAuth'
 import { useGame } from '@/hooks/useGame'
 import { useMakeMove } from '@/hooks/useMakeMove'
-import { oppositeColor, parsePlayerColor } from '@/lib/chess'
+import { playerColorForUser } from '@/lib/chess'
 import type { MovePayload } from '@/types/game'
 import styles from './GamePage.module.scss'
 
 export const GamePage = () => {
   const { id } = useParams<{ id: string }>()
-  const [searchParams] = useSearchParams()
-  const playerColor = parsePlayerColor(searchParams.get('color'))
+  const { user } = useAuth()
 
-  const { game, isLoading, error, notFound, reload, setGame } = useGame(id)
+  const { game, isLoading, error, notFound, canJoin, isJoining, join, reload, setGame } = useGame(id)
   const { makeMove, isSubmitting, error: moveError, resetError } = useMakeMove()
 
   const handleMove = useCallback(
@@ -43,6 +43,23 @@ export const GamePage = () => {
     )
   }
 
+  if (canJoin) {
+    return (
+      <PageState
+        title="Join this game"
+        description="You have been invited to join this game as the opponent."
+        action={
+          <div className={styles.joinActions}>
+            <Button onClick={join} loading={isJoining}>
+              Join game
+            </Button>
+            {error && <Alert tone="danger">{error}</Alert>}
+          </div>
+        }
+      />
+    )
+  }
+
   if (isLoading && !game) {
     return <PageState loading title="Loading game…" />
   }
@@ -61,8 +78,9 @@ export const GamePage = () => {
     return null
   }
 
+  const playerColor = playerColorForUser(game.players, user?.id) ?? 'w'
   const interactive = game.status === 'in_progress' && game.turn === playerColor && !isSubmitting
-  const shareUrl = `${window.location.origin}/game/${game.id}?color=${oppositeColor(playerColor)}`
+  const shareUrl = `${window.location.origin}/game/${game.id}`
 
   return (
     <Page size="wide">

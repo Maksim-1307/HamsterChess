@@ -29,12 +29,20 @@ export interface MoveSnapshot {
   after: string;
 }
 
+export interface GamePlayers {
+  /** user id of the white player, or null when the seat is still open */
+  white: string | null;
+  /** user id of the black player, or null when the seat is still open */
+  black: string | null;
+}
+
 export interface GameState {
   id: string;
   fen: string;
   turn: PieceColor;
   status: GameStatus;
   inCheck: boolean;
+  players: GamePlayers;
   /** rows: rank 8 -> rank 1, columns: file a -> h */
   board: (PieceSnapshot | null)[][];
   moves: MoveSnapshot[];

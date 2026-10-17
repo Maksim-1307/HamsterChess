@@ -1,5 +1,5 @@
 import type { BoardColor } from 'cm-chessboard'
-import type { GameStatus, PieceColor } from '@/types/game'
+import type { GamePlayers, GameStatus, PieceColor } from '@/types/game'
 
 export const playerColorToBoardColor = (color: PieceColor): BoardColor =>
   color === 'w' ? 'w' : 'b'
@@ -26,5 +26,13 @@ export const gameStatusLabel = (status: GameStatus): string => {
   }
 }
 
-export const parsePlayerColor = (value: string | null): PieceColor =>
-  value === 'b' ? 'b' : 'w'
+/** Returns the color the given user plays in the game, or null if they are not a participant. */
+export const playerColorForUser = (
+  players: GamePlayers,
+  userId: string | undefined,
+): PieceColor | null => {
+  if (!userId) return null
+  if (players.white === userId) return 'w'
+  if (players.black === userId) return 'b'
+  return null
+}

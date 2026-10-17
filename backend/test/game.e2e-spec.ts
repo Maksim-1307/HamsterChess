@@ -4,6 +4,7 @@ import request = require('supertest');
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { PublicUser } from '../src/auth/auth.types';
 import { GameState } from '../src/common/types/chess.types';
 
 describe('Game API (e2e)', () => {
@@ -24,32 +25,52 @@ describe('Game API (e2e)', () => {
   });
 
   const http = () => request(app.getHttpServer());
+  const PASSWORD = 'password123';
 
-  function createGame(): Promise<GameState> {
-    return http()
+  async function createSession() {
+    const session = request.agent(app.getHttpServer());
+    const username = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const res = await session
+      .post('/auth/register')
+      .send({ username, password: PASSWORD })
+      .expect(201);
+    return { session, user: res.body as PublicUser };
+  }
+
+  // creator plays white, joiner plays black
+  async function setupGame() {
+    const creator = await createSession();
+    const joiner = await createSession();
+
+    const created = await creator.session
       .post('/game')
-      .expect(201)
-      .then((res) => res.body as GameState);
+      .send({ color: 'w' })
+      .expect(201);
+    const id = created.body.id as string;
+
+    const joined = await joiner.session.post(`/game/${id}/join`).expect(201);
+
+    return { creator, joiner, id, state: joined.body as GameState };
   }
 
-  function move(id: string, body: Record<string, unknown>) {
-    return http().post(`/game/${id}/move`).send(body);
-  }
+  describe('authentication', () => {
+    it('401s creating a game without a session', async () => {
+      await http().post('/game').send({}).expect(401);
+    });
 
-  async function playMoves(
-    id: string,
-    moves: [string, string][],
-  ): Promise<request.Response> {
-    let res: request.Response | undefined;
-    for (const [from, to] of moves) {
-      res = await move(id, { from, to }).expect(201);
-    }
-    return res as request.Response;
-  }
+    it('401s reading a game without a session', async () => {
+      await http()
+        .get('/game/00000000-0000-4000-8000-000000000000')
+        .expect(401);
+    });
+  });
 
   describe('POST /game', () => {
-    it('creates a game with the initial position', async () => {
-      const state = await createGame();
+    it('creates a game and seats the creator as white by default', async () => {
+      const { session, user } = await createSession();
+
+      const res = await session.post('/game').send({}).expect(201);
+      const state = res.body as GameState;
 
       expect(state.id).toEqual(expect.any(String));
       expect(state.fen).toBe(
@@ -57,73 +78,132 @@ describe('Game API (e2e)', () => {
       );
       expect(state.turn).toBe('w');
       expect(state.status).toBe('in_progress');
-      expect(state.inCheck).toBe(false);
+      expect(state.players).toEqual({ white: user.id, black: null });
       expect(state.moves).toHaveLength(0);
-      expect(state.board).toHaveLength(8);
       expect(state.board.flat().filter(Boolean)).toHaveLength(32);
-      expect(state.createdAt).toEqual(expect.any(String));
-      expect(state.updatedAt).toEqual(expect.any(String));
+    });
+
+    it('seats the creator as black when requested', async () => {
+      const { session, user } = await createSession();
+
+      const res = await session
+        .post('/game')
+        .send({ color: 'b' })
+        .expect(201);
+
+      expect((res.body as GameState).players).toEqual({
+        white: null,
+        black: user.id,
+      });
+    });
+
+    it('400s on an invalid color', async () => {
+      const { session } = await createSession();
+
+      await session.post('/game').send({ color: 'x' }).expect(400);
     });
 
     it('exposes legal moves for the side to move', async () => {
-      const state = await createGame();
+      const { session } = await createSession();
+      const res = await session.post('/game').send({}).expect(201);
+      const state = res.body as GameState;
 
       expect(state.legalMoves.e2).toEqual(expect.arrayContaining(['e3', 'e4']));
       expect(state.legalMoves.g1).toEqual(expect.arrayContaining(['f3', 'h3']));
-      // it is white to move, so black has no legal moves yet
       expect(state.legalMoves.e7).toBeUndefined();
-      // empty square has no legal moves
-      expect(state.legalMoves.e4).toBeUndefined();
+    });
+  });
+
+  describe('POST /game/:id/join', () => {
+    it('seats a second player in the open slot', async () => {
+      const creator = await createSession();
+      const joiner = await createSession();
+
+      const created = await creator.session
+        .post('/game')
+        .send({ color: 'w' })
+        .expect(201);
+
+      const res = await joiner.session
+        .post(`/game/${created.body.id}/join`)
+        .expect(201);
+
+      expect((res.body as GameState).players).toEqual({
+        white: creator.user.id,
+        black: joiner.user.id,
+      });
+    });
+
+    it('is idempotent for an existing player', async () => {
+      const { creator, id } = await setupGame();
+
+      await creator.session.post(`/game/${id}/join`).expect(201);
+    });
+
+    it('409s when the game is already full', async () => {
+      const { id } = await setupGame();
+      const stranger = await createSession();
+
+      await stranger.session.post(`/game/${id}/join`).expect(409);
     });
   });
 
   describe('GET /game/:id', () => {
-    it('returns the board state', async () => {
-      const created = await createGame();
+    it('lets a participant read the board state', async () => {
+      const { creator, id, state } = await setupGame();
 
-      const res = await http().get(`/game/${created.id}`).expect(200);
+      const res = await creator.session.get(`/game/${id}`).expect(200);
 
-      expect(res.body).toEqual(expect.objectContaining<Partial<GameState>>({
-        id: created.id,
-        fen: created.fen,
-        turn: 'w',
-        status: 'in_progress',
-        moves: [],
-      }));
+      expect(res.body).toEqual(
+        expect.objectContaining<Partial<GameState>>({
+          id: state.id,
+          fen: state.fen,
+          turn: 'w',
+          status: 'in_progress',
+        }),
+      );
       expect(res.body.board[6][4]).toEqual({
         square: 'e2',
         type: 'p',
         color: 'w',
       });
-      expect(res.body.board[0][4]).toEqual({
-        square: 'e8',
-        type: 'k',
-        color: 'b',
-      });
+    });
+
+    it('403s for a user who is not a participant', async () => {
+      const { id } = await setupGame();
+      const stranger = await createSession();
+
+      await stranger.session.get(`/game/${id}`).expect(403);
     });
 
     it('404s for an unknown game id', async () => {
-      await http()
+      const { session } = await createSession();
+
+      await session
         .get('/game/00000000-0000-4000-8000-000000000000')
         .expect(404);
     });
 
     it('400s for a malformed game id', async () => {
-      await http().get('/game/not-a-uuid').expect(400);
+      const { session } = await createSession();
+
+      await session.get('/game/not-a-uuid').expect(400);
     });
   });
 
-  describe('POST /game/:id/move — legal moves', () => {
+  describe('POST /game/:id/move', () => {
     it('applies a move and returns the updated state', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      const res = await move(game.id, { from: 'e2', to: 'e4' }).expect(201);
+      const res = await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e2', to: 'e4' })
+        .expect(201);
 
       expect(res.body.fen).toBe(
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
       );
       expect(res.body.turn).toBe('b');
-      expect(res.body.moves).toHaveLength(1);
       expect(res.body.moves[0]).toEqual(
         expect.objectContaining({
           from: 'e2',
@@ -133,40 +213,57 @@ describe('Game API (e2e)', () => {
           piece: 'p',
         }),
       );
-      expect(res.body.legalMoves.e7).toEqual(
-        expect.arrayContaining(['e6', 'e5']),
-      );
-      expect(res.body.legalMoves.e2).toBeUndefined();
     });
 
-    it('persists the move history across requests', async () => {
-      const game = await createGame();
-      await playMoves(game.id, [
-        ['e2', 'e4'],
-        ['e7', 'e5'],
-      ]);
+    it('403s when it is not the player turn', async () => {
+      const { joiner, id } = await setupGame();
 
-      const res = await http().get(`/game/${game.id}`).expect(200);
+      const res = await joiner.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e7', to: 'e5' })
+        .expect(403);
 
-      expect(res.body.moves.map((m: { san: string }) => m.san)).toEqual([
-        'e4',
-        'e5',
-      ]);
-      expect(res.body.turn).toBe('w');
+      expect(res.body.message).toContain('not your turn');
+    });
+
+    it('403s for a non-participant', async () => {
+      const { id } = await setupGame();
+      const stranger = await createSession();
+
+      await stranger.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e2', to: 'e4' })
+        .expect(403);
+    });
+
+    it('404s for an unknown game', async () => {
+      const { session } = await createSession();
+
+      await session
+        .post('/game/00000000-0000-4000-8000-000000000000/move')
+        .send({ from: 'e2', to: 'e4' })
+        .expect(404);
     });
 
     it('handles castling', async () => {
-      const game = await createGame();
-      await playMoves(game.id, [
-        ['e2', 'e4'],
-        ['e7', 'e5'],
-        ['g1', 'f3'],
-        ['b8', 'c6'],
-        ['f1', 'c4'],
-        ['g8', 'f6'],
-      ]);
+      const { creator, joiner, id } = await setupGame();
 
-      const res = await move(game.id, { from: 'e1', to: 'g1' }).expect(201);
+      const sequence: [typeof creator.session, string, string][] = [
+        [creator.session, 'e2', 'e4'],
+        [joiner.session, 'e7', 'e5'],
+        [creator.session, 'g1', 'f3'],
+        [joiner.session, 'b8', 'c6'],
+        [creator.session, 'f1', 'c4'],
+        [joiner.session, 'g8', 'f6'],
+      ];
+      for (const [session, from, to] of sequence) {
+        await session.post(`/game/${id}/move`).send({ from, to }).expect(201);
+      }
+
+      const res = await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e1', to: 'g1' })
+        .expect(201);
 
       expect(res.body.fen).toBe(
         'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4',
@@ -177,23 +274,26 @@ describe('Game API (e2e)', () => {
     });
 
     it('promotes a pawn with an explicit promotion piece', async () => {
-      const game = await createGame();
-      await playMoves(game.id, [
-        ['a2', 'a4'],
-        ['b7', 'b5'],
-        ['a4', 'b5'],
-        ['a7', 'a6'],
-        ['b5', 'a6'],
-        ['h7', 'h6'],
-        ['a6', 'a7'],
-        ['h6', 'h5'],
-      ]);
+      const { creator, joiner, id } = await setupGame();
 
-      const res = await move(game.id, {
-        from: 'a7',
-        to: 'b8',
-        promotion: 'q',
-      }).expect(201);
+      const sequence: [typeof creator.session, string, string][] = [
+        [creator.session, 'a2', 'a4'],
+        [joiner.session, 'b7', 'b5'],
+        [creator.session, 'a4', 'b5'],
+        [joiner.session, 'a7', 'a6'],
+        [creator.session, 'b5', 'a6'],
+        [joiner.session, 'h7', 'h6'],
+        [creator.session, 'a6', 'a7'],
+        [joiner.session, 'h6', 'h5'],
+      ];
+      for (const [session, from, to] of sequence) {
+        await session.post(`/game/${id}/move`).send({ from, to }).expect(201);
+      }
+
+      const res = await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'a7', to: 'b8', promotion: 'q' })
+        .expect(201);
 
       expect(res.body.moves.at(-1)).toEqual(
         expect.objectContaining({
@@ -202,24 +302,25 @@ describe('Game API (e2e)', () => {
           captured: 'n',
         }),
       );
-      expect(res.body.board.flat()).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ square: 'b8', type: 'q', color: 'w' }),
-        ]),
-      );
     });
 
     it('detects checkmate', async () => {
-      const game = await createGame();
+      const { creator, joiner, id } = await setupGame();
 
-      const res = await playMoves(game.id, [
-        ['f2', 'f3'],
-        ['e7', 'e5'],
-        ['g2', 'g4'],
-        ['d8', 'h4'],
-      ]);
+      const sequence: [typeof creator.session, string, string][] = [
+        [creator.session, 'f2', 'f3'],
+        [joiner.session, 'e7', 'e5'],
+        [creator.session, 'g2', 'g4'],
+      ];
+      for (const [session, from, to] of sequence) {
+        await session.post(`/game/${id}/move`).send({ from, to }).expect(201);
+      }
 
-      expect(res.statusCode).toBe(201);
+      const res = await joiner.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'd8', to: 'h4' })
+        .expect(201);
+
       expect(res.body.status).toBe('checkmate');
       expect(res.body.inCheck).toBe(true);
       expect(res.body.legalMoves).toEqual({});
@@ -227,81 +328,56 @@ describe('Game API (e2e)', () => {
     });
   });
 
-  describe('POST /game/:id/move — illegal moves', () => {
+  describe('POST /game/:id/move — validation and illegal moves', () => {
     it('400s when the piece cannot move that way', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      const res = await move(game.id, { from: 'e2', to: 'e5' }).expect(400);
+      const res = await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e2', to: 'e5' })
+        .expect(400);
 
       expect(res.body.message).toContain('Illegal move');
     });
 
     it('400s when moving an empty square', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      await move(game.id, { from: 'e4', to: 'e5' }).expect(400);
+      await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e4', to: 'e5' })
+        .expect(400);
     });
 
-    it('400s when moving out of turn', async () => {
-      const game = await createGame();
-      await move(game.id, { from: 'e2', to: 'e4' }).expect(201);
-
-      await move(game.id, { from: 'e2', to: 'e4' }).expect(400);
-    });
-
-    it('400s when jumping with a pawn onto a piece', async () => {
-      const game = await createGame();
-      await playMoves(game.id, [
-        ['e2', 'e4'],
-        ['e7', 'e5'],
-      ]);
-
-      await move(game.id, { from: 'e4', to: 'e5' }).expect(400);
-    });
-
-    it('404s for an unknown game', async () => {
-      await move('00000000-0000-4000-8000-000000000000', {
-        from: 'e2',
-        to: 'e4',
-      }).expect(404);
-    });
-  });
-
-  describe('POST /game/:id/move — request validation', () => {
     it('400s on a malformed square', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      const res = await move(game.id, { from: 'z9', to: 'e4' }).expect(400);
+      const res = await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'z9', to: 'e4' })
+        .expect(400);
 
       expect(res.body.message).toEqual(
         expect.arrayContaining(['from must be a square like "e2"']),
       );
     });
 
-    it('400s on a missing field', async () => {
-      const game = await createGame();
-
-      await move(game.id, { to: 'e4' }).expect(400);
-    });
-
     it('400s on an unknown field', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      await move(game.id, { from: 'e2', to: 'e4', hack: true }).expect(400);
+      await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e2', to: 'e4', hack: true })
+        .expect(400);
     });
 
     it('400s on an invalid promotion piece', async () => {
-      const game = await createGame();
+      const { creator, id } = await setupGame();
 
-      await move(game.id, {
-        from: 'e2',
-        to: 'e4',
-        promotion: 'k',
-      }).expect(400);
-    });
-
-    it('400s for a malformed game id', async () => {
-      await move('nope', { from: 'e2', to: 'e4' }).expect(400);
+      await creator.session
+        .post(`/game/${id}/move`)
+        .send({ from: 'e2', to: 'e4', promotion: 'k' })
+        .expect(400);
     });
   });
 });

@@ -12,6 +12,7 @@
 .inner {
   display: flex;
   align-items: center;
+  gap: var(--space-4);
   height: 64px;
 }
 
@@ -24,4 +25,16 @@
   &:hover {
     color: var(--color-accent-hover);
   }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+.user {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
 }

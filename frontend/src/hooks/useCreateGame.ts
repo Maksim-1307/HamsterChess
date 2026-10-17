@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react'
-import { createGame } from '@/api/game.api'
-import type { GameState } from '@/types/game'
+import { createGame as createGameRequest } from '@/api/game.api'
+import type { GameState, PieceColor } from '@/types/game'
 
 export interface UseCreateGameResult {
-  createGame: () => Promise<GameState | null>
+  createGame: (color: PieceColor) => Promise<GameState | null>
   isCreating: boolean
   error: string | null
 }
@@ -12,11 +12,11 @@ export const useCreateGame = (): UseCreateGameResult => {
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const run = useCallback(async (): Promise<GameState | null> => {
+  const run = useCallback(async (color: PieceColor): Promise<GameState | null> => {
     setIsCreating(true)
     setError(null)
     try {
-      return await createGame()
+      return await createGameRequest(color)
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'Failed to create the game')
       return null
