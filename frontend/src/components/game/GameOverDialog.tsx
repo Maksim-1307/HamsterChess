@@ -55,6 +55,33 @@ export const GameOverDialog = ({
         <span className={cn(styles.badge, styles[outcome])}>
           {t(`game.status.${game.status}`)}
         </span>
+
+        {outcome === 'loss' && (
+          <img 
+            src={`/images/sad.webp`} alt="" 
+            style={{
+              "maxWidth": "200px",
+              "borderRadius": "20px",
+              "marginBottom": "10px",
+              "marginLeft": "auto",
+              "marginRight": "auto"
+            }}
+          />
+        )}
+
+        {outcome === 'win' && (
+          <img 
+            src={`/images/happy.webp`} alt="" 
+            style={{
+              "maxWidth": "200px",
+              "borderRadius": "20px",
+              "marginBottom": "10px",
+              "marginLeft": "auto",
+              "marginRight": "auto"
+            }}
+          />
+        )}
+
         <h2 id="game-over-title" className={styles.title}>
           {t(`game.outcome.${outcome}`)}
         </h2>

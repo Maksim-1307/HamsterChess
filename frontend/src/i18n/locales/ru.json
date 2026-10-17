@@ -14,10 +14,10 @@
     "brand": "Hamster Chess"
   },
   "auth": {
-    "loginTitle": "Вход",
-    "loginSubtitle": "С возвращением — войдите, чтобы продолжить игру.",
-    "registerTitle": "Создайте аккаунт",
-    "registerSubtitle": "Придумайте имя пользователя и пароль, чтобы начать играть.",
+    "loginTitle": "С возвращением!",
+    "loginSubtitle": "Войдите, чтобы продолжить игру.",
+    "registerTitle": "Добро пожаловать в Hamster Chess!",
+    "registerSubtitle": "Создайте аккаунт, чтобы начать играть.",
     "username": "Имя пользователя",
     "password": "Пароль",
     "confirmPassword": "Подтвердите пароль",
@@ -26,10 +26,11 @@
     "passwordsDoNotMatch": "Пароли не совпадают",
     "somethingWentWrong": "Что-то пошло не так",
     "haveAccount": "Уже есть аккаунт?",
-    "newHere": "Впервые здесь?"
+    "newHere": "Впервые здесь?",
+    "greeting": "Приветствие"
   },
   "home": {
-    "title": "Играйте в шахматы с другом",
+    "title": "Играйте в шахматы с друзьями",
     "subtitle": "Создайте игру и поделитесь ссылкой или присоединитесь к игре по её ID.",
     "createCardTitle": "Создать игру",
     "createCardSubtitle": "Начните новую партию и пригласите друга.",

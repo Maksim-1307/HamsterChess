@@ -67,6 +67,17 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
   return (
     <Page>
       <div className={styles.shell}>
+        <img 
+          src="/images/greetings.webp" alt={t('auth.greeting')} 
+          style={{
+            "maxWidth": "200px",
+            "borderRadius": "20px",
+            "marginBottom": "10px",
+            "marginTop": "100px",
+            "marginLeft": "auto",
+            "marginRight": "auto"
+          }}
+        />
         <Card
           title={isRegister ? t('auth.registerTitle') : t('auth.loginTitle')}
           subtitle={isRegister ? t('auth.registerSubtitle') : t('auth.loginSubtitle')}

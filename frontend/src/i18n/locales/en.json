@@ -26,7 +26,8 @@
     "passwordsDoNotMatch": "Passwords do not match",
     "somethingWentWrong": "Something went wrong",
     "haveAccount": "Already have an account?",
-    "newHere": "New here?"
+    "newHere": "New here?",
+    "greeting": "Greeting"
   },
   "home": {
     "title": "Play chess with a friend",
