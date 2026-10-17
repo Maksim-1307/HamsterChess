@@ -1,0 +1,26 @@
+@use '../../styles/theme' as *;
+
+.layout {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+  align-items: start;
+
+  @include breakpoint(lg) {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+.boardColumn {
+  min-width: 0;
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.alert {
+  margin-top: var(--space-4);
+}

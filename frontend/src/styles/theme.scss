@@ -1,0 +1,174 @@
+@use 'sass:math';
+
+// ---------------------------------------------------------------------------
+// Theme tokens: the single source of truth for colors, spacing, radii,
+// typography, borders and motion. No component should hardcode a value.
+// This file emits no CSS by itself, it only exposes variables and mixins.
+// `global.scss` maps these tokens onto :root CSS custom properties.
+// ---------------------------------------------------------------------------
+
+// Palette -------------------------------------------------------------
+$neutral-0: #ffffff;
+$neutral-50: #f6f7f9;
+$neutral-100: #eceef2;
+$neutral-200: #dde1e8;
+$neutral-300: #c4cad4;
+$neutral-400: #99a1b0;
+$neutral-500: #6d7585;
+$neutral-600: #4c5464;
+$neutral-700: #353c49;
+$neutral-800: #242a35;
+$neutral-900: #171c25;
+$neutral-950: #0e1117;
+
+$brand-300: #a9b7ff;
+$brand-400: #7f93ff;
+$brand-500: #5b72f2;
+$brand-600: #4359db;
+
+$success-400: #4bc28d;
+$warning-400: #e0a63a;
+$danger-400: #ef6a6a;
+$info-400: #58a7e0;
+
+// Semantic roles (dark theme) ------------------------------------------
+$color-bg: $neutral-950;
+$color-surface: $neutral-900;
+$color-surface-2: $neutral-800;
+$color-surface-3: $neutral-700;
+$color-border: $neutral-700;
+$color-border-strong: $neutral-600;
+$color-text: $neutral-50;
+$color-text-muted: $neutral-400;
+$color-text-subtle: $neutral-500;
+$color-text-inverse: $neutral-950;
+$color-accent: $brand-400;
+$color-accent-hover: $brand-300;
+$color-accent-strong: $brand-500;
+$color-accent-text: $neutral-0;
+$color-on-strong: $neutral-0;
+$color-success: $success-400;
+$color-warning: $warning-400;
+$color-danger: $danger-400;
+$color-info: $info-400;
+$color-overlay: rgba(6, 8, 12, 0.72);
+
+// Chess board squares --------------------------------------------------
+$board-light: #ebecd0;
+$board-dark: #7c9d59;
+
+// Spacing scale (4px base) ---------------------------------------------
+$space-unit: 4px;
+$space-1: $space-unit * 1;
+$space-2: $space-unit * 2;
+$space-3: $space-unit * 3;
+$space-4: $space-unit * 4;
+$space-5: $space-unit * 5;
+$space-6: $space-unit * 6;
+$space-7: $space-unit * 7;
+
+// Radii ----------------------------------------------------------------
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$radius-full: 999px;
+
+// Typography -----------------------------------------------------------
+$font-body: 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$font-heading: 'Libre Franklin', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$font-display: 'Merienda', cursive;
+$font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+$text-2xs: 11px;
+$text-xs: 12px;
+$text-sm: 14px;
+$text-md: 16px;
+$text-lg: 18px;
+$text-xl: 22px;
+$text-2xl: 28px;
+
+$weight-regular: 400;
+$weight-medium: 600;
+$weight-bold: 700;
+
+// Borders --------------------------------------------------------------
+$border-width: 1px;
+$border: $border-width solid $color-border;
+
+// Elevation ------------------------------------------------------------
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+$shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+$shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.5);
+
+// Motion ---------------------------------------------------------------
+$transition-fast: 120ms ease;
+$transition-base: 200ms ease;
+
+// Layers ---------------------------------------------------------------
+$z-sticky: 100;
+$z-overlay: 200;
+$z-modal: 300;
+
+// Breakpoints ----------------------------------------------------------
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+// Functions ------------------------------------------------------------
+@function space($step) {
+  @return $space-unit * $step;
+}
+
+@function rem($px) {
+  @return math.div($px, 16px);
+}
+
+// Mixins ---------------------------------------------------------------
+@mixin breakpoint($name) {
+  @if $name == sm {
+    @media (min-width: $bp-sm) {
+      @content;
+    }
+  } @else if $name == md {
+    @media (min-width: $bp-md) {
+      @content;
+    }
+  } @else if $name == lg {
+    @media (min-width: $bp-lg) {
+      @content;
+    }
+  } @else if $name == xl {
+    @media (min-width: $bp-xl) {
+      @content;
+    }
+  }
+}
+
+@mixin focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba($color-accent, 0.4);
+}
+
+@mixin reset-button {
+  appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@mixin card {
+  background: $color-surface;
+  border: $border;
+  border-radius: $radius-lg;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

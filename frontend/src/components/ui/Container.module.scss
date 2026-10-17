@@ -1,0 +1,19 @@
+@use '../../styles/theme' as *;
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: var(--space-4);
+
+  @include breakpoint(md) {
+    padding-inline: var(--space-6);
+  }
+}
+
+.default {
+  max-width: 960px;
+}
+
+.wide {
+  max-width: 1280px;
+}

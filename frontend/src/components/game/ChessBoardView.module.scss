@@ -1,0 +1,14 @@
+@use '../../styles/theme' as *;
+
+.board {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+
+  :global(.cm-chessboard) {
+    border-radius: var(--radius-lg);
+  }
+}

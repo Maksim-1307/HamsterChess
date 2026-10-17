@@ -1,0 +1,43 @@
+@use '../../styles/theme' as *;
+
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.title {
+  font-weight: var(--weight-medium);
+}
+
+.content {
+  color: inherit;
+}
+
+.info {
+  background: rgba($info-400, 0.12);
+  border-color: rgba($info-400, 0.4);
+  color: var(--color-info);
+}
+
+.success {
+  background: rgba($success-400, 0.12);
+  border-color: rgba($success-400, 0.4);
+  color: var(--color-success);
+}
+
+.warning {
+  background: rgba($warning-400, 0.12);
+  border-color: rgba($warning-400, 0.4);
+  color: var(--color-warning);
+}
+
+.danger {
+  background: rgba($danger-400, 0.12);
+  border-color: rgba($danger-400, 0.4);
+  color: var(--color-danger);
+}

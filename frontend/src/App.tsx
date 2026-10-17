@@ -1,9 +1,19 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { GamePage } from '@/pages/GamePage/GamePage'
+import { HomePage } from '@/pages/HomePage/HomePage'
+import { NotFoundPage } from '@/pages/NotFoundPage/NotFoundPage'
 
-function App() {
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="game/:id" element={<GamePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
+)
 
-  return (
-    <></>
-  );
-}
-
-export default App;
+export default App

@@ -1,0 +1,146 @@
+@use './theme' as *;
+
+:root {
+  // colors
+  --color-bg: #{$color-bg};
+  --color-surface: #{$color-surface};
+  --color-surface-2: #{$color-surface-2};
+  --color-surface-3: #{$color-surface-3};
+  --color-border: #{$color-border};
+  --color-border-strong: #{$color-border-strong};
+  --color-text: #{$color-text};
+  --color-text-muted: #{$color-text-muted};
+  --color-text-subtle: #{$color-text-subtle};
+  --color-text-inverse: #{$color-text-inverse};
+  --color-accent: #{$color-accent};
+  --color-accent-hover: #{$color-accent-hover};
+  --color-accent-strong: #{$color-accent-strong};
+  --color-accent-text: #{$color-accent-text};
+  --color-on-strong: #{$color-on-strong};
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-danger: #{$color-danger};
+  --color-info: #{$color-info};
+  --color-overlay: #{$color-overlay};
+
+  // chess board
+  --color-board-light: #{$board-light};
+  --color-board-dark: #{$board-dark};
+
+  // spacing
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-5: #{$space-5};
+  --space-6: #{$space-6};
+  --space-7: #{$space-7};
+
+  // radii
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-full: #{$radius-full};
+
+  // borders
+  --border-width: #{$border-width};
+
+  // typography
+  --font-body: #{$font-body};
+  --font-heading: #{$font-heading};
+  --font-display: #{$font-display};
+  --font-mono: #{$font-mono};
+  --text-2xs: #{$text-2xs};
+  --text-xs: #{$text-xs};
+  --text-sm: #{$text-sm};
+  --text-md: #{$text-md};
+  --text-lg: #{$text-lg};
+  --text-xl: #{$text-xl};
+  --text-2xl: #{$text-2xl};
+  --weight-regular: #{$weight-regular};
+  --weight-medium: #{$weight-medium};
+  --weight-bold: #{$weight-bold};
+
+  // elevation
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+
+  // motion
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+
+  // layers
+  --z-sticky: #{$z-sticky};
+  --z-overlay: #{$z-overlay};
+  --z-modal: #{$z-modal};
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+button {
+  font-family: inherit;
+}
+
+// ---------------------------------------------------------------------------
+// cm-chessboard theme bridge: map the library's board colors onto our tokens.
+// ---------------------------------------------------------------------------
+.cm-chessboard.default {
+  .board .square {
+    &.white {
+      fill: var(--color-board-light);
+    }
+
+    &.black {
+      fill: var(--color-board-dark);
+    }
+  }
+}

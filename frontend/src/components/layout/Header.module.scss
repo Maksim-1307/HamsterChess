@@ -1,0 +1,27 @@
+@use '../../styles/theme' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  border-bottom: $border;
+  background: rgba($neutral-900, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  height: 64px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}

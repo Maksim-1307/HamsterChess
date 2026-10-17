@@ -1,0 +1,101 @@
+import { useCallback } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { ChessBoardView } from '@/components/game/ChessBoardView'
+import { GameStatusPanel } from '@/components/game/GameStatusPanel'
+import { GameToolbar } from '@/components/game/GameToolbar'
+import { MoveHistory } from '@/components/game/MoveHistory'
+import { Page } from '@/components/layout/Page'
+import { PageState } from '@/components/layout/PageState'
+import { Alert } from '@/components/ui/Alert'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { useGame } from '@/hooks/useGame'
+import { useMakeMove } from '@/hooks/useMakeMove'
+import { oppositeColor, parsePlayerColor } from '@/lib/chess'
+import type { MovePayload } from '@/types/game'
+import styles from './GamePage.module.scss'
+
+export const GamePage = () => {
+  const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
+  const playerColor = parsePlayerColor(searchParams.get('color'))
+
+  const { game, isLoading, error, notFound, reload, setGame } = useGame(id)
+  const { makeMove, isSubmitting, error: moveError, resetError } = useMakeMove()
+
+  const handleMove = useCallback(
+    async (move: MovePayload) => {
+      if (!id) return
+      resetError()
+      const next = await makeMove(id, move)
+      if (next) setGame(next)
+    },
+    [id, makeMove, resetError, setGame],
+  )
+
+  if (!id || notFound) {
+    return (
+      <PageState
+        title="Game not found"
+        description="This game does not exist or may have expired."
+        action={<Button to="/">Back to lobby</Button>}
+      />
+    )
+  }
+
+  if (isLoading && !game) {
+    return <PageState loading title="Loading game…" />
+  }
+
+  if (error && !game) {
+    return (
+      <PageState
+        title="Something went wrong"
+        description={error}
+        action={<Button onClick={reload}>Try again</Button>}
+      />
+    )
+  }
+
+  if (!game) {
+    return null
+  }
+
+  const interactive = game.status === 'in_progress' && game.turn === playerColor && !isSubmitting
+  const shareUrl = `${window.location.origin}/game/${game.id}?color=${oppositeColor(playerColor)}`
+
+  return (
+    <Page size="wide">
+      <div className={styles.layout}>
+        <div className={styles.boardColumn}>
+          <ChessBoardView
+            fen={game.fen}
+            orientation={playerColor}
+            interactive={interactive}
+            legalMoves={game.legalMoves}
+            onMove={handleMove}
+          />
+        </div>
+
+        <aside className={styles.sideColumn}>
+          <Card title="Players" subtitle={`Game ${game.id}`}>
+            <GameStatusPanel game={game} playerColor={playerColor} />
+          </Card>
+
+          <Card title="Actions">
+            <GameToolbar onUpdate={reload} isUpdating={isLoading} shareUrl={shareUrl} />
+            {moveError && (
+              <Alert tone="danger" className={styles.alert}>
+                {moveError}
+              </Alert>
+            )}
+          </Card>
+
+          <Card title="Move history">
+            <MoveHistory moves={game.moves} />
+          </Card>
+        </aside>
+      </div>
+    </Page>
+  )
+}
