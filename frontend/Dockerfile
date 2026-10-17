@@ -13,11 +13,11 @@ ARG VITE_API_URL
 ARG VITE_SOCKET_URL
 
 ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
 
 # default vite port, --host to allow connections from outside the container
 EXPOSE 5173
-CMD ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # 3. build
 FROM base AS builder
@@ -29,7 +29,7 @@ ARG VITE_API_URL
 ARG VITE_SOCKET_URL
 
 ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
 
 RUN npm run build
 

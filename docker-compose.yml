@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: chess-postgres
+    command: ["-p", "${DB_INTERNAL_PORT}"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -10,9 +11,9 @@ services:
       - chess_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - chess-network
+      - chess-internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -p ${DB_INTERNAL_PORT} -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       timeout: 30s
       retries: 10
       start_period: 40s
@@ -33,7 +34,7 @@ services:
     volumes:
       - chess_redis_data:/data
     networks:
-      - chess-network
+      - chess-internal
  
   backend-prod:
     profiles:
@@ -68,6 +69,7 @@ services:
       chess-network:
         aliases:
           - backend
+      chess-internal:
     volumes:
       - chess_backend_uploads:/app/uploads
   
@@ -104,6 +106,7 @@ services:
       chess-network:
         aliases:
           - backend
+      chess-internal:
     volumes:
       - chess_backend_uploads:/app/uploads
       - ./backend/src:/app/src
@@ -142,13 +145,16 @@ services:
     ports:
       - "${FRONTEND_PORT}:5173"
     environment:
-      VITE_RECAPTCHA_SITE_KEY: ${VITE_RECAPTCHA_SITE_KEY}
+      # consumed by vite.config.ts as the dev proxy target (/app-api -> backend)
+      API_URL: ${API_URL}
       VITE_API_URL: ${VITE_API_URL}
       VITE_SOCKET_URL: ${VITE_SOCKET_URL}
     networks:
       - chess-network
     volumes:
       - ./frontend:/app
+      # anonymous volume keeps the image's node_modules instead of the host's
+      - /app/node_modules
     restart: unless-stopped
 
 volumes:
@@ -157,6 +163,10 @@ volumes:
   chess_backend_uploads:
 
 networks:
+  # public-facing network (services with published ports live here)
   chess-network:
+    driver: bridge
+  # isolated network for data services (no internet, no published ports)
+  chess-internal:
     driver: bridge
     internal: true
