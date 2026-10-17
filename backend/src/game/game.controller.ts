@@ -42,6 +42,14 @@ export class GameController {
     return this.gameService.joinGame(id, user.id);
   }
 
+  @Post(':id/rematch')
+  rematch(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<GameState> {
+    return this.gameService.rematch(id, user.id);
+  }
+
   @Post(':id/move')
   makeMove(
     @Param('id', ParseUUIDPipe) id: string,

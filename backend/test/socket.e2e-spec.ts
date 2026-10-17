@@ -145,4 +145,50 @@ describe('Game socket (e2e)', () => {
 
     socket.disconnect();
   });
+
+  it('wakes both players when a rematch is created', async () => {
+    const { white, black, gameId } = await createGameWithPlayers();
+
+    // fool's mate ends the game
+    const moves: [string, string, string][] = [
+      [white.cookie, 'f2', 'f3'],
+      [black.cookie, 'e7', 'e5'],
+      [white.cookie, 'g2', 'g4'],
+      [black.cookie, 'd8', 'h4'],
+    ];
+    for (const [cookie, from, to] of moves) {
+      await http()
+        .post(`/game/${gameId}/move`)
+        .set('Cookie', cookie)
+        .send({ from, to })
+        .expect(201);
+    }
+
+    const whiteSocket = connect(white.cookie);
+    const blackSocket = connect(black.cookie);
+    await waitFor(whiteSocket, 'connect');
+    await waitFor(blackSocket, 'connect');
+    await watch(whiteSocket, gameId);
+    await watch(blackSocket, gameId);
+
+    const whiteUpdate = waitFor(whiteSocket, 'game:updated');
+    const blackUpdate = waitFor(blackSocket, 'game:updated');
+
+    await http()
+      .post(`/game/${gameId}/rematch`)
+      .set('Cookie', white.cookie)
+      .expect(201);
+
+    expect(await whiteUpdate).toEqual([]);
+    expect(await blackUpdate).toEqual([]);
+
+    const old = await http()
+      .get(`/game/${gameId}`)
+      .set('Cookie', black.cookie)
+      .expect(200);
+    expect(old.body.rematchId).toEqual(expect.any(String));
+
+    whiteSocket.disconnect();
+    blackSocket.disconnect();
+  });
 });

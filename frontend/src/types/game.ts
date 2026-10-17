@@ -41,6 +41,8 @@ export interface GameState {
   status: GameStatus
   inCheck: boolean
   players: GamePlayers
+  /** id of the rematch game created from this one, or null */
+  rematchId: string | null
   /** rows: rank 8 -> rank 1, columns: file a -> h */
   board: (PieceSnapshot | null)[][]
   moves: MoveSnapshot[]

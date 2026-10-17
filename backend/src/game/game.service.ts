@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -66,6 +67,42 @@ export class GameService {
     await this.gameRepository.save(game.toRecord());
     this.gameGateway.notifyMove(id, userId);
     return game.toState();
+  }
+
+  /**
+   * Starts a fresh game between the same two players (colors swapped).
+   * Idempotent: once a rematch exists, it is returned instead of creating one,
+   * so both players converge on the same new game.
+   */
+  async rematch(id: string, userId: string): Promise<GameState> {
+    const game = await this.loadGame(id);
+    this.assertParticipant(game, userId);
+
+    const existingId = game.rematchGameId();
+    if (existingId) {
+      return (await this.loadGame(existingId)).toState();
+    }
+
+    if (!game.isFinished()) {
+      throw new BadRequestException('The current game is still in progress');
+    }
+
+    const { white, black } = game.players();
+    if (!white || !black) {
+      throw new BadRequestException('Waiting for an opponent to join');
+    }
+
+    const next = Game.create(randomUUID(), {
+      whitePlayerId: black,
+      blackPlayerId: white,
+    });
+    await this.gameRepository.save(next.toRecord());
+
+    game.linkRematch(next.id);
+    await this.gameRepository.save(game.toRecord());
+
+    this.gameGateway.notifyRematch(id);
+    return next.toState();
   }
 
   private assertParticipant(game: Game, userId: string): PieceColor {

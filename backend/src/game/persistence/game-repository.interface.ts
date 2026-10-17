@@ -6,6 +6,8 @@ export interface GameRecord {
   whitePlayerId: string | null;
   /** user id occupying the black seat, or null when it is still open */
   blackPlayerId: string | null;
+  /** id of the rematch game created from this one, or null */
+  rematchId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

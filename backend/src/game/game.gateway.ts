@@ -93,6 +93,11 @@ export class GameGateway implements OnGatewayConnection {
       .emit('game:updated');
   }
 
+  /** Wakes every participant of the game, e.g. when a rematch is created. */
+  notifyRematch(gameId: string): void {
+    this.server.to(gameRoom(gameId)).emit('game:updated');
+  }
+
   private reject(socket: Socket): void {
     this.logger.debug(`Rejecting unauthenticated socket ${socket.id}`);
     socket.disconnect(true);

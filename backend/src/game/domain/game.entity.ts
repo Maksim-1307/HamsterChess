@@ -29,6 +29,7 @@ export class Game {
     chess: Chess,
     private whitePlayerId: string | null,
     private blackPlayerId: string | null,
+    private rematchId: string | null,
     public readonly createdAt: Date,
     public updatedAt: Date,
   ) {
@@ -45,6 +46,7 @@ export class Game {
       new Chess(),
       options.whitePlayerId ?? null,
       options.blackPlayerId ?? null,
+      null,
       now,
       now,
     );
@@ -60,6 +62,7 @@ export class Game {
       chess,
       record.whitePlayerId,
       record.blackPlayerId,
+      record.rematchId,
       record.createdAt,
       record.updatedAt,
     );
@@ -75,8 +78,26 @@ export class Game {
     return null;
   }
 
+  players(): GamePlayers {
+    return { white: this.whitePlayerId, black: this.blackPlayerId };
+  }
+
   currentTurn(): PieceColor {
     return this.chess.turn();
+  }
+
+  isFinished(): boolean {
+    return this.chess.isGameOver();
+  }
+
+  rematchGameId(): string | null {
+    return this.rematchId;
+  }
+
+  /** Points this game at the rematch game created from it. */
+  linkRematch(rematchId: string): void {
+    this.rematchId = rematchId;
+    this.updatedAt = new Date();
   }
 
   /** Seats the user in the first free slot; throws when the game is full. */
@@ -119,6 +140,7 @@ export class Game {
       status: this.resolveStatus(),
       inCheck: this.chess.inCheck(),
       players: this.players(),
+      rematchId: this.rematchId,
       board: this.chess.board(),
       moves: this.chess.history({ verbose: true }).map(toMoveSnapshot),
       legalMoves: this.legalMoves(),
@@ -133,13 +155,10 @@ export class Game {
       moves: this.chess.history(),
       whitePlayerId: this.whitePlayerId,
       blackPlayerId: this.blackPlayerId,
+      rematchId: this.rematchId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
-  }
-
-  private players(): GamePlayers {
-    return { white: this.whitePlayerId, black: this.blackPlayerId };
   }
 
   private legalMoves(): Record<Square, Square[]> {

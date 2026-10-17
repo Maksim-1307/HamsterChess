@@ -380,4 +380,81 @@ describe('Game API (e2e)', () => {
         .expect(400);
     });
   });
+
+  describe('POST /game/:id/rematch', () => {
+    // fool's mate: creator (white) walks into a quick checkmate
+    async function finishGame() {
+      const { creator, joiner, id } = await setupGame();
+
+      const sequence: [typeof creator.session, string, string][] = [
+        [creator.session, 'f2', 'f3'],
+        [joiner.session, 'e7', 'e5'],
+        [creator.session, 'g2', 'g4'],
+        [joiner.session, 'd8', 'h4'],
+      ];
+      for (const [session, from, to] of sequence) {
+        await session.post(`/game/${id}/move`).send({ from, to }).expect(201);
+      }
+
+      return { creator, joiner, id };
+    }
+
+    it('starts a new game between the same players with swapped colors', async () => {
+      const { creator, joiner, id } = await finishGame();
+
+      const res = await creator.session
+        .post(`/game/${id}/rematch`)
+        .expect(201);
+      const next = res.body as GameState;
+
+      expect(next.id).not.toBe(id);
+      expect(next.fen).toBe(
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      );
+      expect(next.status).toBe('in_progress');
+      expect(next.moves).toHaveLength(0);
+      expect(next.players).toEqual({
+        white: joiner.user.id,
+        black: creator.user.id,
+      });
+    });
+
+    it('links the rematch back onto the finished game', async () => {
+      const { creator, id } = await finishGame();
+
+      const res = await creator.session
+        .post(`/game/${id}/rematch`)
+        .expect(201);
+
+      const old = await creator.session.get(`/game/${id}`).expect(200);
+      expect(old.body.rematchId).toBe(res.body.id);
+    });
+
+    it('is idempotent so both players converge on the same game', async () => {
+      const { creator, joiner, id } = await finishGame();
+
+      const first = await creator.session
+        .post(`/game/${id}/rematch`)
+        .expect(201);
+      const second = await joiner.session
+        .post(`/game/${id}/rematch`)
+        .expect(201);
+
+      expect(second.body.id).toBe(first.body.id);
+      await joiner.session.get(`/game/${first.body.id}`).expect(200);
+    });
+
+    it('400s while the game is still in progress', async () => {
+      const { creator, id } = await setupGame();
+
+      await creator.session.post(`/game/${id}/rematch`).expect(400);
+    });
+
+    it('403s for a non-participant', async () => {
+      const { id } = await finishGame();
+      const stranger = await createSession();
+
+      await stranger.session.post(`/game/${id}/rematch`).expect(403);
+    });
+  });
 });

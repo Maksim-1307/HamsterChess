@@ -36,3 +36,27 @@ export const playerColorForUser = (
   if (players.black === userId) return 'b'
   return null
 }
+
+export type GameOutcome = 'win' | 'loss' | 'draw'
+
+/** Outcome for `playerColor` in a finished game, or null while it is running. */
+export const gameOutcome = (
+  status: GameStatus,
+  turn: PieceColor,
+  playerColor: PieceColor,
+): GameOutcome | null => {
+  if (status === 'in_progress') return null
+  if (status === 'checkmate') return turn === playerColor ? 'loss' : 'win'
+  return 'draw'
+}
+
+export const outcomeTitle = (outcome: GameOutcome): string => {
+  switch (outcome) {
+    case 'win':
+      return 'You won!'
+    case 'loss':
+      return 'You lost'
+    case 'draw':
+      return 'Draw'
+  }
+}
