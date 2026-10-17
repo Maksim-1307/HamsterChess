@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getGame, joinGame } from '@/api/game.api'
 import { ApiError } from '@/api/http'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { GameState } from '@/types/game'
 
 export interface UseGameResult {
@@ -17,6 +18,13 @@ export interface UseGameResult {
 }
 
 export const useGame = (id: string | undefined): UseGameResult => {
+  const { t } = useTranslation()
+  const tRef = useRef(t)
+
+  useEffect(() => {
+    tRef.current = t
+  }, [t])
+
   const [game, setGameState] = useState<GameState | null>(null)
   const [isLoading, setIsLoading] = useState(Boolean(id))
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +53,7 @@ export const useGame = (id: string | undefined): UseGameResult => {
         } else if (cause instanceof ApiError && cause.status === 403) {
           setCanJoin(true)
         } else {
-          setError(cause instanceof Error ? cause.message : 'Failed to load the game')
+          setError(cause instanceof Error ? cause.message : tRef.current('errors.loadGame'))
         }
       } finally {
         if (active) setIsLoading(false)
@@ -77,11 +85,11 @@ export const useGame = (id: string | undefined): UseGameResult => {
       setGameState(result)
       setCanJoin(false)
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Failed to join the game')
+      setError(cause instanceof Error ? cause.message : t('errors.joinGame'))
     } finally {
       setIsJoining(false)
     }
-  }, [id])
+  }, [id, t])
 
   return { game, isLoading, error, notFound, canJoin, isJoining, join, reload, setGame }
 }

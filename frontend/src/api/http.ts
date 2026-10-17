@@ -1,4 +1,5 @@
 import { env } from '@/config/env'
+import { translate } from '@/i18n/translations'
 
 export class ApiError extends Error {
   readonly status: number
@@ -33,7 +34,7 @@ const extractMessage = (data: unknown, response: Response): string => {
     if (Array.isArray(message)) return message.join(', ')
     if (typeof message === 'string') return message
   }
-  return `Request failed with status ${response.status}`
+  return translate('errors.requestFailed', { status: response.status })
 }
 
 type UnauthorizedHandler = () => void

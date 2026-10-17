@@ -15,6 +15,7 @@ import { useGame } from '@/hooks/useGame'
 import { useGameSocket } from '@/hooks/useGameSocket'
 import { useMakeMove } from '@/hooks/useMakeMove'
 import { useRematch } from '@/hooks/useRematch'
+import { useTranslation } from '@/hooks/useTranslation'
 import { gameOutcome, playerColorForUser } from '@/lib/chess'
 import type { MovePayload } from '@/types/game'
 import styles from './GamePage.module.scss'
@@ -23,6 +24,7 @@ export const GamePage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useTranslation()
 
   const { game, isLoading, error, notFound, canJoin, isJoining, join, reload, setGame } = useGame(id)
   const { makeMove, isSubmitting, error: moveError, resetError } = useMakeMove()
@@ -58,9 +60,9 @@ export const GamePage = () => {
   if (!id || notFound) {
     return (
       <PageState
-        title="Game not found"
-        description="This game does not exist or may have expired."
-        action={<Button to="/">Back to lobby</Button>}
+        title={t('game.notFoundTitle')}
+        description={t('game.notFoundDescription')}
+        action={<Button to="/">{t('common.backToLobby')}</Button>}
       />
     )
   }
@@ -68,12 +70,12 @@ export const GamePage = () => {
   if (canJoin) {
     return (
       <PageState
-        title="Join this game"
-        description="You have been invited to join this game as the opponent."
+        title={t('game.joinTitle')}
+        description={t('game.joinDescription')}
         action={
           <div className={styles.joinActions}>
             <Button onClick={join} loading={isJoining}>
-              Join game
+              {t('game.joinGame')}
             </Button>
             {error && <Alert tone="danger">{error}</Alert>}
           </div>
@@ -83,15 +85,15 @@ export const GamePage = () => {
   }
 
   if (isLoading && !game) {
-    return <PageState loading title="Loading game…" />
+    return <PageState loading title={t('game.loading')} />
   }
 
   if (error && !game) {
     return (
       <PageState
-        title="Something went wrong"
+        title={t('game.errorTitle')}
         description={error}
-        action={<Button onClick={reload}>Try again</Button>}
+        action={<Button onClick={reload}>{t('common.tryAgain')}</Button>}
       />
     )
   }
@@ -120,11 +122,14 @@ export const GamePage = () => {
           </div>
 
           <aside className={styles.sideColumn}>
-            <Card title="Players" subtitle={`Game ${game.id}`}>
+            <Card
+              title={t('game.playersCard')}
+              subtitle={t('game.gameLabel', { id: game.id })}
+            >
               <GameStatusPanel game={game} playerColor={playerColor} />
             </Card>
 
-            <Card title="Actions">
+            <Card title={t('game.actionsCard')}>
               <GameToolbar onUpdate={reload} isUpdating={isLoading} shareUrl={shareUrl} />
               {outcome && (
                 <Button
@@ -133,7 +138,7 @@ export const GamePage = () => {
                   block
                   className={styles.rematchButton}
                 >
-                  Play again
+                  {t('game.playAgain')}
                 </Button>
               )}
               {rematchError && (
@@ -148,7 +153,7 @@ export const GamePage = () => {
               )}
             </Card>
 
-            <Card title="Move history">
+            <Card title={t('game.moveHistoryCard')}>
               <MoveHistory moves={game.moves} />
             </Card>
           </aside>

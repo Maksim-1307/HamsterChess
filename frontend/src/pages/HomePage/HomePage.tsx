@@ -8,19 +8,21 @@ import { Card } from '@/components/ui/Card'
 import { Select } from '@/components/ui/Select'
 import { TextField } from '@/components/ui/TextField'
 import { useCreateGame } from '@/hooks/useCreateGame'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { PieceColor } from '@/types/game'
 import styles from './HomePage.module.scss'
 
-const COLOR_OPTIONS = [
-  { value: 'w', label: 'White' },
-  { value: 'b', label: 'Black' },
-]
-
 export const HomePage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [color, setColor] = useState<PieceColor>('w')
   const [joinId, setJoinId] = useState('')
   const { createGame, isCreating, error } = useCreateGame()
+
+  const colorOptions = [
+    { value: 'w', label: t('color.white') },
+    { value: 'b', label: t('color.black') },
+  ]
 
   const handleCreate = async () => {
     const game = await createGame(color)
@@ -40,38 +42,36 @@ export const HomePage = () => {
   return (
     <Page>
       <div className={styles.intro}>
-        <h1 className={styles.title}>Play chess with a friend</h1>
-        <p className={styles.subtitle}>
-          Create a game and share the link, or join one using its game ID.
-        </p>
+        <h1 className={styles.title}>{t('home.title')}</h1>
+        <p className={styles.subtitle}>{t('home.subtitle')}</p>
       </div>
 
       <div className={styles.grid}>
-        <Card title="Create a game" subtitle="Start a fresh board and invite a friend.">
+        <Card title={t('home.createCardTitle')} subtitle={t('home.createCardSubtitle')}>
           <div className={styles.form}>
             <Select
-              label="Play as"
+              label={t('home.playAs')}
               value={color}
-              options={COLOR_OPTIONS}
+              options={colorOptions}
               onChange={(event) => setColor(event.target.value as PieceColor)}
             />
             <Button onClick={handleCreate} loading={isCreating} block>
-              Create game
+              {t('home.createGame')}
             </Button>
             {error && <Alert tone="danger">{error}</Alert>}
           </div>
         </Card>
 
-        <Card title="Join a game" subtitle="Enter the game ID you received.">
+        <Card title={t('home.joinCardTitle')} subtitle={t('home.joinCardSubtitle')}>
           <form className={styles.form} onSubmit={handleJoin}>
             <TextField
-              label="Game ID"
+              label={t('home.gameId')}
               value={joinId}
-              placeholder="Paste the game ID"
+              placeholder={t('home.gameIdPlaceholder')}
               onChange={(event) => setJoinId(event.target.value)}
             />
             <Button type="submit" variant="secondary" block disabled={joinId.trim().length === 0}>
-              Join game
+              {t('home.joinGame')}
             </Button>
           </form>
         </Card>

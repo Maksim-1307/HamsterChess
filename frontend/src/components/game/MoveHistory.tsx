@@ -1,3 +1,4 @@
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/cn'
 import type { MoveSnapshot } from '@/types/game'
 import styles from './MoveHistory.module.scss'
@@ -29,12 +30,13 @@ const toRows = (moves: MoveSnapshot[]): MoveRow[] => {
 }
 
 export const MoveHistory = ({ moves, className }: MoveHistoryProps) => {
+  const { t } = useTranslation()
   const rows = toRows(moves)
 
   return (
     <div className={cn(styles.history, className)}>
       {rows.length === 0 ? (
-        <p className={styles.empty}>No moves yet</p>
+        <p className={styles.empty}>{t('game.noMoves')}</p>
       ) : (
         <ol className={styles.list}>
           {rows.map((row) => (

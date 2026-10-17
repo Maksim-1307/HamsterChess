@@ -1,3 +1,4 @@
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/cn'
 import styles from './Spinner.module.scss'
 
@@ -9,10 +10,14 @@ interface SpinnerProps {
   label?: string
 }
 
-export const Spinner = ({ size = 'md', className, label = 'Loading' }: SpinnerProps) => (
-  <span
-    className={cn(styles.spinner, styles[size], className)}
-    role="status"
-    aria-label={label}
-  />
-)
+export const Spinner = ({ size = 'md', className, label }: SpinnerProps) => {
+  const { t } = useTranslation()
+
+  return (
+    <span
+      className={cn(styles.spinner, styles[size], className)}
+      role="status"
+      aria-label={label ?? t('common.loading')}
+    />
+  )
+}

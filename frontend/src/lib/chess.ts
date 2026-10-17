@@ -6,26 +6,6 @@ export const playerColorToBoardColor = (color: PieceColor): BoardColor =>
 
 export const oppositeColor = (color: PieceColor): PieceColor => (color === 'w' ? 'b' : 'w')
 
-export const playerColorLabel = (color: PieceColor): string =>
-  color === 'w' ? 'White' : 'Black'
-
-export const gameStatusLabel = (status: GameStatus): string => {
-  switch (status) {
-    case 'in_progress':
-      return 'In progress'
-    case 'checkmate':
-      return 'Checkmate'
-    case 'stalemate':
-      return 'Stalemate'
-    case 'insufficient_material':
-      return 'Insufficient material'
-    case 'threefold_repetition':
-      return 'Threefold repetition'
-    case 'draw':
-      return 'Draw'
-  }
-}
-
 /** Returns the color the given user plays in the game, or null if they are not a participant. */
 export const playerColorForUser = (
   players: GamePlayers,
@@ -48,15 +28,4 @@ export const gameOutcome = (
   if (status === 'in_progress') return null
   if (status === 'checkmate') return turn === playerColor ? 'loss' : 'win'
   return 'draw'
-}
-
-export const outcomeTitle = (outcome: GameOutcome): string => {
-  switch (outcome) {
-    case 'win':
-      return 'You won!'
-    case 'loss':
-      return 'You lost'
-    case 'draw':
-      return 'Draw'
-  }
 }

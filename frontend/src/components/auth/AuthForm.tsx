@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { TextField } from '@/components/ui/TextField'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './AuthForm.module.scss'
 
 export type AuthMode = 'login' | 'register'
@@ -25,6 +26,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { login, register } = useAuth()
+  const { t } = useTranslation()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -40,7 +42,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
     event.preventDefault()
 
     if (isRegister && password !== confirm) {
-      setConfirmError('Passwords do not match')
+      setConfirmError(t('auth.passwordsDoNotMatch'))
       return
     }
 
@@ -56,7 +58,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
       }
       navigate(redirectTo, { replace: true })
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Something went wrong')
+      setError(cause instanceof Error ? cause.message : t('auth.somethingWentWrong'))
     } finally {
       setIsSubmitting(false)
     }
@@ -66,16 +68,12 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
     <Page>
       <div className={styles.shell}>
         <Card
-          title={isRegister ? 'Create your account' : 'Sign in'}
-          subtitle={
-            isRegister
-              ? 'Pick a username and password to start playing.'
-              : 'Welcome back — sign in to continue playing.'
-          }
+          title={isRegister ? t('auth.registerTitle') : t('auth.loginTitle')}
+          subtitle={isRegister ? t('auth.registerSubtitle') : t('auth.loginSubtitle')}
         >
           <form className={styles.form} onSubmit={handleSubmit}>
             <TextField
-              label="Username"
+              label={t('auth.username')}
               name="username"
               autoComplete="username"
               required
@@ -85,7 +83,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               onChange={(event) => setUsername(event.target.value)}
             />
             <TextField
-              label="Password"
+              label={t('auth.password')}
               name="password"
               type="password"
               autoComplete={isRegister ? 'new-password' : 'current-password'}
@@ -96,7 +94,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
             />
             {isRegister && (
               <TextField
-                label="Confirm password"
+                label={t('auth.confirmPassword')}
                 name="confirm-password"
                 type="password"
                 autoComplete="new-password"
@@ -110,7 +108,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
             {error && <Alert tone="danger">{error}</Alert>}
 
             <Button type="submit" block loading={isSubmitting}>
-              {isRegister ? 'Create account' : 'Sign in'}
+              {isRegister ? t('auth.createAccount') : t('auth.signIn')}
             </Button>
           </form>
         </Card>
@@ -118,11 +116,11 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
         <p className={styles.switch}>
           {isRegister ? (
             <>
-              Already have an account? <Link to="/login">Sign in</Link>
+              {t('auth.haveAccount')} <Link to="/login">{t('auth.signIn')}</Link>
             </>
           ) : (
             <>
-              New here? <Link to="/register">Create an account</Link>
+              {t('auth.newHere')} <Link to="/register">{t('auth.createAccount')}</Link>
             </>
           )}
         </p>

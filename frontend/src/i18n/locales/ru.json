@@ -1,0 +1,109 @@
+{
+  "language": {
+    "name": "Русский"
+  },
+  "common": {
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "settings": "Настройки",
+    "backToLobby": "В лобби",
+    "tryAgain": "Попробовать снова",
+    "loading": "Загрузка…"
+  },
+  "header": {
+    "brand": "Hamster Chess"
+  },
+  "auth": {
+    "loginTitle": "Вход",
+    "loginSubtitle": "С возвращением — войдите, чтобы продолжить игру.",
+    "registerTitle": "Создайте аккаунт",
+    "registerSubtitle": "Придумайте имя пользователя и пароль, чтобы начать играть.",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "signIn": "Войти",
+    "createAccount": "Создать аккаунт",
+    "passwordsDoNotMatch": "Пароли не совпадают",
+    "somethingWentWrong": "Что-то пошло не так",
+    "haveAccount": "Уже есть аккаунт?",
+    "newHere": "Впервые здесь?"
+  },
+  "home": {
+    "title": "Играйте в шахматы с другом",
+    "subtitle": "Создайте игру и поделитесь ссылкой или присоединитесь к игре по её ID.",
+    "createCardTitle": "Создать игру",
+    "createCardSubtitle": "Начните новую партию и пригласите друга.",
+    "playAs": "Играть за",
+    "createGame": "Создать игру",
+    "joinCardTitle": "Присоединиться к игре",
+    "joinCardSubtitle": "Введите полученный ID игры.",
+    "gameId": "ID игры",
+    "gameIdPlaceholder": "Вставьте ID игры",
+    "joinGame": "Присоединиться"
+  },
+  "color": {
+    "white": "Белые",
+    "black": "Чёрные"
+  },
+  "game": {
+    "notFoundTitle": "Игра не найдена",
+    "notFoundDescription": "Эта игра не существует или срок её действия истёк.",
+    "joinTitle": "Присоединиться к игре",
+    "joinDescription": "Вас пригласили присоединиться к этой игре в качестве соперника.",
+    "joinGame": "Присоединиться",
+    "loading": "Загрузка игры…",
+    "errorTitle": "Что-то пошло не так",
+    "tryAgain": "Попробовать снова",
+    "playersCard": "Игроки",
+    "gameLabel": "Игра {{id}}",
+    "actionsCard": "Действия",
+    "moveHistoryCard": "История ходов",
+    "playAgain": "Играть снова",
+    "youPlay": "Вы играете за",
+    "statusLabel": "Статус",
+    "turnLabel": "Ход",
+    "gameOver": "Игра окончена",
+    "turnText": {
+      "white": "Ход белых",
+      "black": "Ход чёрных"
+    },
+    "check": "Шах",
+    "noMoves": "Пока нет ходов",
+    "update": "Обновить",
+    "copyLink": "Копировать ссылку",
+    "linkCopied": "Ссылка скопирована",
+    "close": "Закрыть",
+    "status": {
+      "in_progress": "В процессе",
+      "checkmate": "Мат",
+      "stalemate": "Пат",
+      "insufficient_material": "Недостаточно материала",
+      "threefold_repetition": "Троекратное повторение",
+      "draw": "Ничья"
+    },
+    "outcome": {
+      "win": "Вы победили!",
+      "loss": "Вы проиграли",
+      "draw": "Ничья"
+    }
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "description": "Страница, которую вы ищете, не существует."
+  },
+  "errors": {
+    "loadGame": "Не удалось загрузить игру",
+    "joinGame": "Не удалось присоединиться к игре",
+    "createGame": "Не удалось создать игру",
+    "submitMove": "Не удалось отправить ход",
+    "rematch": "Не удалось начать реванш",
+    "requestFailed": "Запрос завершился с кодом {{status}}"
+  },
+  "settings": {
+    "title": "Настройки",
+    "subtitle": "Управляйте своими предпочтениями.",
+    "languageCardTitle": "Язык",
+    "languageCardSubtitle": "Выберите язык интерфейса.",
+    "languageLabel": "Язык интерфейса"
+  }
+}

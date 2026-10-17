@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/cn'
-import { gameStatusLabel, outcomeTitle } from '@/lib/chess'
 import type { GameOutcome } from '@/lib/chess'
 import type { GameState } from '@/types/game'
 import styles from './GameOverDialog.module.scss'
@@ -24,6 +24,8 @@ export const GameOverDialog = ({
   onPlayAgain,
   onDismiss,
 }: GameOverDialogProps) => {
+  const { t } = useTranslation()
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onDismiss()
@@ -41,21 +43,28 @@ export const GameOverDialog = ({
         aria-labelledby="game-over-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <button type="button" className={styles.close} aria-label="Close" onClick={onDismiss}>
+        <button
+          type="button"
+          className={styles.close}
+          aria-label={t('game.close')}
+          onClick={onDismiss}
+        >
           ×
         </button>
 
-        <span className={cn(styles.badge, styles[outcome])}>{gameStatusLabel(game.status)}</span>
+        <span className={cn(styles.badge, styles[outcome])}>
+          {t(`game.status.${game.status}`)}
+        </span>
         <h2 id="game-over-title" className={styles.title}>
-          {outcomeTitle(outcome)}
+          {t(`game.outcome.${outcome}`)}
         </h2>
 
         <div className={styles.actions}>
           <Button onClick={onPlayAgain} loading={isRematching} block>
-            Play again
+            {t('game.playAgain')}
           </Button>
           <Button to="/" variant="secondary" block>
-            Back to lobby
+            {t('common.backToLobby')}
           </Button>
         </div>
 

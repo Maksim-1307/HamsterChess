@@ -1,0 +1,109 @@
+{
+  "language": {
+    "name": "English"
+  },
+  "common": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "settings": "Settings",
+    "backToLobby": "Back to lobby",
+    "tryAgain": "Try again",
+    "loading": "Loading…"
+  },
+  "header": {
+    "brand": "Hamster Chess"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Welcome back — sign in to continue playing.",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Pick a username and password to start playing.",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "somethingWentWrong": "Something went wrong",
+    "haveAccount": "Already have an account?",
+    "newHere": "New here?"
+  },
+  "home": {
+    "title": "Play chess with a friend",
+    "subtitle": "Create a game and share the link, or join one using its game ID.",
+    "createCardTitle": "Create a game",
+    "createCardSubtitle": "Start a fresh board and invite a friend.",
+    "playAs": "Play as",
+    "createGame": "Create game",
+    "joinCardTitle": "Join a game",
+    "joinCardSubtitle": "Enter the game ID you received.",
+    "gameId": "Game ID",
+    "gameIdPlaceholder": "Paste the game ID",
+    "joinGame": "Join game"
+  },
+  "color": {
+    "white": "White",
+    "black": "Black"
+  },
+  "game": {
+    "notFoundTitle": "Game not found",
+    "notFoundDescription": "This game does not exist or may have expired.",
+    "joinTitle": "Join this game",
+    "joinDescription": "You have been invited to join this game as the opponent.",
+    "joinGame": "Join game",
+    "loading": "Loading game…",
+    "errorTitle": "Something went wrong",
+    "tryAgain": "Try again",
+    "playersCard": "Players",
+    "gameLabel": "Game {{id}}",
+    "actionsCard": "Actions",
+    "moveHistoryCard": "Move history",
+    "playAgain": "Play again",
+    "youPlay": "You play",
+    "statusLabel": "Status",
+    "turnLabel": "Turn",
+    "gameOver": "Game over",
+    "turnText": {
+      "white": "White to move",
+      "black": "Black to move"
+    },
+    "check": "Check",
+    "noMoves": "No moves yet",
+    "update": "Update",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "close": "Close",
+    "status": {
+      "in_progress": "In progress",
+      "checkmate": "Checkmate",
+      "stalemate": "Stalemate",
+      "insufficient_material": "Insufficient material",
+      "threefold_repetition": "Threefold repetition",
+      "draw": "Draw"
+    },
+    "outcome": {
+      "win": "You won!",
+      "loss": "You lost",
+      "draw": "Draw"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist."
+  },
+  "errors": {
+    "loadGame": "Failed to load the game",
+    "joinGame": "Failed to join the game",
+    "createGame": "Failed to create the game",
+    "submitMove": "Failed to submit the move",
+    "rematch": "Failed to start a rematch",
+    "requestFailed": "Request failed with status {{status}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your preferences.",
+    "languageCardTitle": "Language",
+    "languageCardSubtitle": "Choose the language of the interface.",
+    "languageLabel": "Interface language"
+  }
+}

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/cn'
 import styles from './GameToolbar.module.scss'
 
@@ -11,6 +12,7 @@ export interface GameToolbarProps {
 }
 
 export const GameToolbar = ({ onUpdate, isUpdating, shareUrl, className }: GameToolbarProps) => {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = useCallback(async () => {
@@ -26,10 +28,10 @@ export const GameToolbar = ({ onUpdate, isUpdating, shareUrl, className }: GameT
   return (
     <div className={cn(styles.toolbar, className)}>
       <Button variant="secondary" onClick={onUpdate} loading={isUpdating}>
-        Update
+        {t('game.update')}
       </Button>
       <Button variant="ghost" onClick={handleCopy}>
-        {copied ? 'Link copied' : 'Copy link'}
+        {copied ? t('game.linkCopied') : t('game.copyLink')}
       </Button>
     </div>
   )
